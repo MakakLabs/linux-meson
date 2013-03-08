@@ -47,19 +47,11 @@ static ssize_t  aml_gpio_attr_##name##_store(struct class *cla,  struct class_at
     return strnlen(buf, count);    \
 }
 
-static void set_power_led_onoff(char *onoff);
-
-SET_GPIO_CLASS_ATTR(powerkey_led_ctrl, set_power_led_onoff)
-
 static struct class_attribute gpio_class_attrs[] = {
     __ATTR(cmd,
     S_IRUGO | S_IWUSR,
     NULL,
     gpio_cmd_restore),
-    __ATTR(powerkey_led_ctrl,
-    S_IRUGO | S_IWUSR,
-    aml_gpio_attr_powerkey_led_ctrl_show,
-    aml_gpio_attr_powerkey_led_ctrl_store),
     __ATTR_NULL,
 };
 
@@ -75,6 +67,7 @@ static  gpio_t  am_gpio = {
     .dev = NULL,
     .major = -1,
 };
+
 static struct uio_info gpio_uio_info = {
     .name = "gpio_uio",
     .version = "0.1",
