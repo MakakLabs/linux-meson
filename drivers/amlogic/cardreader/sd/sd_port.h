@@ -59,7 +59,7 @@ extern unsigned SD_PWR_EN_LEVEL;
 
 extern unsigned SD_WORK_MODE;
 #define SD_MMC_POWER_CONTROL
-#if !defined(CONFIG_MACH_MESON3_REFF16_DONGLE) || !defined(CONFIG_MACH_MESON3_REFF16)
+#if !defined(CONFIG_MACH_MESON3_REFF16_DONGLE) && !defined(CONFIG_SD_MMC_NO_WP_CHECK)
 #define SD_MMC_WP_CHECK
 #endif
 extern void sd_sdio_enable(SDIO_Pad_Type_t io_pad_type);
