@@ -149,6 +149,7 @@ extern unsigned long nr_uninterruptible(void);
 extern unsigned long nr_iowait(void);
 extern unsigned long nr_iowait_cpu(void);
 extern unsigned long this_cpu_load(void);
+extern int above_background_load(void);
 
 
 extern void calc_global_load(void);
