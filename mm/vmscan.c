@@ -1670,6 +1670,7 @@ static void shrink_zone(int priority, struct zone *zone,
 	unsigned long nr_to_reclaim = sc->nr_to_reclaim;
 	struct zone_reclaim_stat *reclaim_stat = get_reclaim_stat(zone, sc);
 	int noswap = 0;
+	int tmp_priority;
 
 	/* If we have no swap space, do not bother scanning anon pages. */
 	if (!sc->may_swap || (nr_swap_pages <= 0)) {
@@ -1685,7 +1686,11 @@ static void shrink_zone(int priority, struct zone *zone,
 
 		scan = zone_nr_lru_pages(zone, sc, l);
 		if (priority || noswap) {
-			scan >>= priority;
+			tmp_priority = priority;
+
+			if (file && priority > 0)
+				tmp_priority = DEF_PRIORITY;
+			scan >>= tmp_priority;
 			scan = (scan * percent[file]) / 100;
 		}
 		nr[l] = nr_scan_try_batch(scan,
