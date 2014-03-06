@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # Linux kernel version: 2.6.34.14
-# Thu Mar  6 16:23:18 2014
+# Thu Mar  6 18:33:25 2014
 #
 CONFIG_ARM=y
 CONFIG_HOLES_IN_ZONE=y
@@ -904,7 +904,7 @@ CONFIG_AM_NAND=y
 CONFIG_AM_NAND_RBPIN=y
 CONFIG_AML_NAND_ENV=y
 # CONFIG_AML_NAND_KEY is not set
-CONFIG_AML_NFTL=y
+# CONFIG_AML_NFTL is not set
 # CONFIG_AML_NFTL_NEW is not set
 
 #
