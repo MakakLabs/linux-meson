@@ -55,7 +55,6 @@ gpio_mode_t get_gpio_mode(gpio_bank_t bank, int bit)
 int set_gpio_val(gpio_bank_t bank, int bit, unsigned long val)
 {
     unsigned long addr = gpio_addrs[bank].out_addr;
-    unsigned int gpio_bit = 0;
 #ifdef CONFIG_EXGPIO
     if (bank >= EXGPIO_BANK0) {
         set_exgpio_val(bank - EXGPIO_BANK0, bit, val);

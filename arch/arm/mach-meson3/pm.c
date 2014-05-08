@@ -900,6 +900,8 @@ static int meson_pm_enter(suspend_state_t state)
 static void meson_pm_finish(void)
 {
     printk(KERN_INFO "enter meson_pm_finish!\n");
+    #include <asm/system.h>
+    arm_machine_restart(1, "");
     WRITE_CBUS_REG(SYS_CPU_0_IRQ_IN0_INTR_MASK, mask_save[0]);
     WRITE_CBUS_REG(SYS_CPU_0_IRQ_IN1_INTR_MASK, mask_save[1]);
     WRITE_CBUS_REG(SYS_CPU_0_IRQ_IN2_INTR_MASK, mask_save[2]);

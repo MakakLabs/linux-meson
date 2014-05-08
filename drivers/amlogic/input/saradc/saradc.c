@@ -25,6 +25,36 @@ static struct saradc *gp_saradc;
 #define INTERNAL_CAL_NUM	5
 
 static u8 chan_mux[SARADC_CHAN_NUM] = {0,1,2,3,4,5,6,7};
+static u8 temp_read_out = 0;
+
+static int get_celius(void)
+{
+    int x,y;
+    unsigned div=100000;
+    /**
+     *  .x=0.304991,.y=-87.883549^M
+	.x=0.304991,.y=-87.578558^M
+	.x=0.305556,.y=-87.055556^M
+	.x=0.230769,.y=-87.769231^M
+	.x=0.230769,.y=-87.538462^M
+	.x=0.231092,.y=-86.911765^M
+	.x=0.288967,.y=-99.527145^M
+	.x=0.288967,.y=-99.238179^M
+	.x=0.289982,.y=-98.866432^M
+     *
+     */
+    ///@todo fix it later
+    if(READ_CBUS_REG( SAR_ADC_REG3 )&(1<<29))
+    {
+        x=23077;
+        y=-88;
+
+    }else{
+        x=28897;
+        y=-100;
+    }
+    return (int)((get_adc_sample(6))*x/div + y);
+}
 
 
 static void saradc_reset(void)
@@ -276,7 +306,11 @@ static ssize_t saradc_ch5_show(struct class *cla, struct class_attribute *attr, 
 }
 static ssize_t saradc_ch6_show(struct class *cla, struct class_attribute *attr, char *buf)
 {
-    return sprintf(buf, "%d\n", get_adc_sample(6));
+    if (temp_read_out) {
+	return sprintf(buf, "Temp: %d oC\n", get_celius());
+    } else {
+	return sprintf(buf, "%d\n", get_adc_sample(6));
+    }
 }
 static ssize_t saradc_ch7_show(struct class *cla, struct class_attribute *attr, char *buf)
 {
@@ -284,25 +318,26 @@ static ssize_t saradc_ch7_show(struct class *cla, struct class_attribute *attr, 
 }
 static ssize_t saradc_print_flag_store(struct class *cla, struct class_attribute *attr, char *buf, ssize_t count)
 {
-		sscanf(buf, "%x", (int*)&print_flag);
+    sscanf(buf, "%x", (int*)&print_flag);
     printk("print_flag=%d\n", print_flag);
     return count;
 }
 static ssize_t saradc_temperature_store(struct class *cla, struct class_attribute *attr, char *buf, ssize_t count)
 {
-		u8 tempsen;
-		sscanf(buf, "%x", (int*)&tempsen);
-		if (tempsen) {
-    	temp_sens_sel(1);
-    	set_tempsen(2);
-    	printk("enter temperature mode, please get the value from chan6\n");
-		}
-		else {
-     	temp_sens_sel(0);
-   		set_tempsen(0);
-    	printk("exit temperature mode\n");
-  	}
-    return count;
+	u8 tempsen;
+	sscanf(buf, "%x", (int*)&tempsen);
+	if (tempsen) {
+	    temp_sens_sel(1);
+	    set_tempsen(2);
+	    temp_read_out = 1;
+	    printk("enter temperature mode, please get the value from chan6\n");
+	} else {
+	    temp_sens_sel(0);
+	    set_tempsen(0);
+	    temp_read_out = 0;
+	    printk("exit temperature mode\n");
+	}
+	return count;
 }
 
 static struct class_attribute saradc_class_attrs[] = {
@@ -313,11 +348,12 @@ static struct class_attribute saradc_class_attrs[] = {
     __ATTR_RO(saradc_ch4),
     __ATTR_RO(saradc_ch5),
     __ATTR_RO(saradc_ch6),
-    __ATTR_RO(saradc_ch7),    
+    __ATTR_RO(saradc_ch7),
     __ATTR(saradc_print_flag, S_IRUGO | S_IWUSR, 0, saradc_print_flag_store),
-    __ATTR(saradc_temperature, S_IRUGO | S_IWUSR, 0, saradc_temperature_store),    
+    __ATTR(saradc_temperature, S_IRUGO | S_IWUSR, 0, saradc_temperature_store),
     __ATTR_NULL
 };
+
 static struct class saradc_class = {
     .name = "saradc",
     .class_attrs = saradc_class_attrs,
@@ -364,6 +400,10 @@ static int __init saradc_probe(struct platform_device *pdev)
 	}
 #endif
 	set_cal_voltage(7);
+	temp_sens_sel(1);
+	set_tempsen(2);
+	temp_read_out = 1;
+
 	spin_lock_init(&saradc->lock);	
 	return 0;
 

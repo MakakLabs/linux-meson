@@ -7,6 +7,10 @@ config AM_ETHERNET
 	tristate "Amloigc Ethetnet support"
 	depends on  NET
 	
+config AM_ETHERNET_EXT_CLK
+	bool "Use external clock for eth"
+	depends on  NET && AM_ETHERNET
+
 config AM_ETHERNET_DEBUG_LEVEL
 	int "Amloigc Ethetnet debug level support"
 	default 1

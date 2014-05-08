@@ -240,19 +240,34 @@ static void hid_irq_in(struct urb *urb)
 	struct hid_device	*hid = urb->context;
 	struct usbhid_device 	*usbhid = hid->driver_data;
 	int			status;
+	int      		process_input_report = 1;
 
 	switch (urb->status) {
 	case 0:			/* success */
 		usbhid_mark_busy(usbhid);
 		usbhid->retry_delay = 0;
-		hid_input_report(urb->context, HID_INPUT_REPORT,
-				 urb->transfer_buffer,
-				 urb->actual_length, 1);
+		if (hid->quirks & HID_QUIRK_USBHID_SET_IDLE) {
+      		/* when set idle is enabled, device may send duplicate reports.
+       		* so, do not process report if the same as previous */
+      		if (memcmp(urb->transfer_buffer, usbhid->idle_inbuf, urb->actual_length) == 0) {
+        		process_input_report = 0;
+      		}
+      		else {
+        		memcpy(usbhid->idle_inbuf, urb->transfer_buffer, urb->actual_length);
+      		}	
+    		}
+    
+    		if (process_input_report) {
+      			hid_input_report(urb->context, HID_INPUT_REPORT,
+          		urb->transfer_buffer,
+          		urb->actual_length, 1);
+    		}
+    
 		/*
-		 * autosuspend refused while keys are pressed
-		 * because most keyboards don't wake up when
-		 * a key is released
-		 */
+		* autosuspend refused while keys are pressed
+		* because most keyboards don't wake up when
+		* a key is released
+		*/
 		if (hid_check_keys_pressed(hid))
 			set_bit(HID_KEYS_PRESSED, &usbhid->iofl);
 		else
@@ -631,6 +646,22 @@ static int hid_set_idle(struct usb_device *dev, int ifnum, int report, int idle)
 		ifnum, NULL, 0, USB_CTRL_SET_TIMEOUT);
 }
 
+static int hid_set_idle_with_quirk(struct usb_device *dev, int ifnum, int report, int idle, u32 quirks)
+{
+  if (quirks & HID_QUIRK_USBHID_SET_IDLE) {
+    printk(KERN_INFO "usbhid: HID set idle quirk for %04hx:%04hx\n",
+      le16_to_cpu(dev->descriptor.idVendor), le16_to_cpu(dev->descriptor.idProduct));
+    if ((idle <= 0) || (idle > 10))
+    {
+      /* USB might miss packets, so set to (10 * 4) = 40ms USB HID idle rate to workaround sticky key issue */
+      idle = 10;
+    }
+  }
+  
+  return hid_set_idle(dev, ifnum, report, idle); 
+}
+
+
 static int hid_get_class_descriptor(struct usb_device *dev, int ifnum,
 		unsigned char type, void *buf, int size)
 {
@@ -795,6 +826,16 @@ static int hid_alloc_buffers(struct usb_device *dev, struct hid_device *hid)
 			!usbhid->ctrlbuf)
 		return -1;
 
+	if (hid->quirks & HID_QUIRK_USBHID_SET_IDLE)
+  	{
+    		usbhid->idle_inbuf = (hid->quirks & HID_QUIRK_USBHID_SET_IDLE) ? kmalloc(usbhid->bufsize, GFP_KERNEL) : NULL;
+    		if (usbhid->idle_inbuf) {
+      			memset(usbhid->idle_inbuf, 0, usbhid->bufsize);
+    		}
+    		else
+      		return -1;
+  	}
+
 	return 0;
 }
 
@@ -848,6 +889,11 @@ static void hid_free_buffers(struct usb_device *dev, struct hid_device *hid)
 	usb_buffer_free(dev, usbhid->bufsize, usbhid->outbuf, usbhid->outbuf_dma);
 	usb_buffer_free(dev, sizeof(*(usbhid->cr)), usbhid->cr, usbhid->cr_dma);
 	usb_buffer_free(dev, usbhid->bufsize, usbhid->ctrlbuf, usbhid->ctrlbuf_dma);
+	
+	if (usbhid->idle_inbuf) {
+    		kfree(usbhid->idle_inbuf);
+    		usbhid->idle_inbuf = NULL;
+  	}
 }
 
 static int usbhid_parse(struct hid_device *hid)
@@ -899,7 +945,7 @@ static int usbhid_parse(struct hid_device *hid)
 		return -ENOMEM;
 	}
 
-	hid_set_idle(dev, interface->desc.bInterfaceNumber, 0, 0);
+	hid_set_idle_with_quirk(dev, interface->desc.bInterfaceNumber, 0, 0, quirks);
 
 	ret = hid_get_class_descriptor(dev, interface->desc.bInterfaceNumber,
 			HID_DT_REPORT, rdesc, rsize);
@@ -1019,12 +1065,15 @@ static int usbhid_start(struct hid_device *hid)
 	/* Some keyboards don't work until their LEDs have been set.
 	 * Since BIOSes do set the LEDs, it must be safe for any device
 	 * that supports the keyboard boot protocol.
+	 * In addition, enable remote wakeup by default for all keyboard
+	 * devices supporting the boot protocol.
 	 */
 	if (interface->desc.bInterfaceSubClass == USB_INTERFACE_SUBCLASS_BOOT &&
 			interface->desc.bInterfaceProtocol ==
-				USB_INTERFACE_PROTOCOL_KEYBOARD)
+				USB_INTERFACE_PROTOCOL_KEYBOARD) {
 		usbhid_set_leds(hid);
-
+		device_set_wakeup_enable(&dev->dev, 1);
+	}
 	return 0;
 
 fail:
@@ -1247,7 +1296,7 @@ static int hid_post_reset(struct usb_interface *intf)
 	spin_lock_irq(&usbhid->lock);
 	clear_bit(HID_RESET_PENDING, &usbhid->iofl);
 	spin_unlock_irq(&usbhid->lock);
-	hid_set_idle(dev, intf->cur_altsetting->desc.bInterfaceNumber, 0, 0);
+	hid_set_idle_with_quirk(dev, intf->cur_altsetting->desc.bInterfaceNumber, 0, 0, hid->quirks);
 	status = hid_start_in(hid);
 	if (status < 0)
 		hid_io_error(hid);
