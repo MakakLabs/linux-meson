@@ -19,6 +19,12 @@ Please open an issue if:
 * You find an updated kernel tree so I'll know and add it.
 
 
+Roadmap and timetable:
+* Have the most updated and stable kernel for my M3 devices (GBox, Mygica A11, STV01, TLBB, MK802), M6 (G18, Mygica ATV520E, Mygica ATV120).
+* Running Arch Linux Arm as a development enviroment.
+* Bring my own uboot.
+* No timetable, this is done at my free time, I've got other hobbies and exams to learn to.
+
 
 Stable branches
 ===============
