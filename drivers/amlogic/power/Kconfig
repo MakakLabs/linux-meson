@@ -25,7 +25,7 @@ config BQ27x00_BATTERY
 
 config IR810_POWEROFF
 	bool "Amlogic IR810 poweroff"
-	depends on (MACH_MESON_STV_MBX_M3 || MACH_MESON3_STV_MBX_MC ||  MACH_MESON3_REF16 || MACH_MESON3_REFF16_GBOX || MACH_MESON3_REFF16_GBOX_1 || MACH_MESON3_REFF16_BLUEM3) && I2C_SW_AML
+	depends on (MACH_MESON_STV_MBX_M3 || MACH_MESON3_STV_MBX_MC ||  MACH_MESON3_REFF16 || MACH_MESON3_REFF16_GBOX || MACH_MESON3_REFF16_GBOX_1 || MACH_MESON3_REFF16_BLUEM3) && I2C_SW_AML
         default n
         help
           Say Y here if you want to add power off driver support for stv-mbx platform.
