@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # Linux kernel version: 2.6.34.14
-# Sat May 24 21:42:41 2014
+# Sat May 24 23:57:10 2014
 #
 CONFIG_ARM=y
 CONFIG_HOLES_IN_ZONE=y
@@ -810,7 +810,7 @@ CONFIG_KEY_INPUT_CUSTOM_AM=y
 #
 # Amlogic Power Management Support
 #
-# CONFIG_AMLOGIC_PM is not set
+CONFIG_AMLOGIC_PM=y
 # CONFIG_PMU_ACT8xxx is not set
 
 #
