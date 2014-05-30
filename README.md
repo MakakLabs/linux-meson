@@ -39,6 +39,7 @@ Branches in detail
 ==================
 * m3-2.6.34 : supports M1,M3, origin from Pivos repository, commits cherry-picked from on [J1nx-Hackable-Gadgets/buildroot-linux-kernel-m3 develop branch](https://github.com/J1nx-Hackable-Gadgets/buildroot-linux-kernel-m3/tree/develop), reached EOF, it looks like Amlogic privately released 2.6.34-15 (20130701).
 * m6-3.0.101 : supports M6, origin from Matricom repository, main development at [CoreTech-Development/mx-common](https://github.com/CoreTech-Development/mx-common), originally it's 3.0.50 release from Amlogic, reached EOF, Amlogic released updated 3.0.50 release (3.0.50-20140314) and 3.10.10 (3.10-20140306).
+* wip/2.6.34.15 : supports M1,M3, mali api19, origin from [Stane1983 repository](https://github.com/Stane1983/amlogic-m3).
 * wip/3.0.50-20140314 : supports M6, origin from public Amlogic release.
 * wip/3.10.10-20140306 : supports M6, M8, origin from public Amlogic release.
 * wip/3.10.33 : supports M6, M8, origin from [oman007/s82_kernel](https://github.com/oman007/s82_kernel).
