@@ -47,7 +47,7 @@ Different approaches to kernel releases
 
 Amlogic kernel releases includes predefined cross compile settings and few unneeded binary tools like mkimage.
 
-My approach is that for older releases than 3.10 these settings should be kept as we mainly using these released with the Buildroot tree for embedded XBMC Linux 
+My approach is that for older releases than 3.10 these settings should be kept as we mainly using these releases with the Buildroot tree for embedded XBMC Linux 
 solution and the Buildroot tree already set for these releases.  
 For 3.10 released and up these setting and binary blobs should be removed as we can run full armhf distro with these kernels and we should put our efforts in a 
 more popular embedded XBMC Linux soultion (hint: it's not Buildroot based).
