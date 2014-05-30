@@ -8,6 +8,29 @@ This repository is my attempt to group all the stable kernel releases for the Me
 I'm not a kernel developer nor I wish to be, just playing around with Linux on these devices.
 
 
+Development process
+===================
+
+ATM there's no much development happening here, mostly updating the configs and cherry-picking patches from older Amlogic kernel releases (that originally pushed 
+by OSS developers) to the latest one.  
+As one can notice from the fact this is a fork of torvalds/linux my goal is to have clean patches against Linux mainline, this is a big task for me as a novice 
+Linux user (I'm not a developer) so it might take some time to get there (if at all).
+
+
+Anyone that wants to contribue is welcome to fork this repo but be alert of the following.
+
+
+I'm still figuring out how to properly manage this repository, some branches might be removed in favor of new repositories with Amlogic drivers, but the overall I 
+think the structure will stay the same:
+* Stable branches: list bellow.
+* Mirror branches: just for mirroring and refernce.
+* Upstream: checkout directly from Linux mainline git.
+* WIP branches. 
+* Feature brnaches: a new feature that in't ready to be pushed to the WIP or stable branch or kept in a separated branch as the local base branch isn't upstream 
+(upstream is somewhere else like Corey's repo), so after a PR to upstream the local base will be update from upstream (not be confuse with the branches from Linux 
+mainline which named here upstream).
+
+
 If you're forking this repo then keep in mind that:
 * Stable branches are the only ones that their timeline won't be disturbed.
 * Feature branches might be squashed and deleted.
